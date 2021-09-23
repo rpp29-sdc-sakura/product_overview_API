@@ -1,17 +1,23 @@
 const {Sequelize, DataTypes} = require('sequelize');
 const { product, feature, style, sku, photo } = require('./pgModels/index.js');
+
 const productOverviewDB = new Sequelize('productOverviewDB', 'root', null, {
     host: 'localhost',
-    dialect: 'postgres'
+    dialect: 'postgres',
+    pool: {
+        max: 100000
+      }
 });
 
-try {
-    productOverviewDB.authenticate();
+productOverviewDB.authenticate()
+.then(() => {
     console.log('Connection has been established successfully.');
-} catch (error) {
-    console.error('Unable to connect to the database:', error);
-}
+})
+.catch ( error => {
+    console.log('Unable to connect to the database:', error);
+});
  
+
 const models = {
     Photo: photo(productOverviewDB, DataTypes),
     SKU: sku(productOverviewDB, DataTypes),
@@ -20,11 +26,13 @@ const models = {
     Product: product(productOverviewDB, DataTypes)
 };
 
+
 Object.keys(models).forEach(key => {
   if ('associate' in models[key]) {
     models[key].associate(models);
   }
 });
+
 
 module.exports = {
     models,
