@@ -20,7 +20,24 @@ const fetchProducts = async params => {
 }
 
 const fetchProduct = async id => {
-
+    let product = await models.Product.findAll({
+        where: {
+            id: id
+        }
+    });
+    product = product[0].dataValues
+    let features = await models.Feature.findAll({
+        where: {
+            product_id: id
+        }
+    });
+    product.features = features.map(feature => {
+        return { 
+            feature: feature.dataValues.feature,
+            value:  feature.dataValues.value
+        };
+    })
+    return product;
 }
 
 

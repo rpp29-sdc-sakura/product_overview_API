@@ -12,19 +12,19 @@ app.use(express.urlencoded({
 app.get('/products', (req, res) => {
   dbHelpers.fetchProducts(req.query)
   .then(result => {
-    res.send(result);
+    res.status(200).send(result);
   })
 });
 
 app.get('/products/:product_id', (req, res) => {
-  let productId = parseInt(req.params);
+  let productId = parseInt(req.params['product_id']);
   if(isNaN(productId)) {
     res.status(400).send('Invalid product ID');
   } else {
-    dbHelpers.fetchProducts(productId)
+    dbHelpers.fetchProduct(productId)
     .then(result => {
-      console.log(result);
-    })
+      res.status(200).send(result);
+    });
   }
 });
 
