@@ -15,14 +15,17 @@ const fetchProducts = async params => {
             }
         }
     });
-    result = result.map(product => {
-        delete product.dataValues.createdAt;
-        delete product.dataValues.updatedAt;
-        return product.dataValues
-     });
+    result = result.map(product => product.dataValues);
     return result;
 }
 
+const fetchProduct = async id => {
+
+}
+
+
+
 module.exports = {
-    fetchProducts
+    fetchProducts,
+    fetchProduct
 }

@@ -16,7 +16,17 @@ app.get('/products', (req, res) => {
   })
 });
 
-
+app.get('/products/:product_id', (req, res) => {
+  let productId = parseInt(req.params);
+  if(isNaN(productId)) {
+    res.status(400).send('Invalid product ID');
+  } else {
+    dbHelpers.fetchProducts(productId)
+    .then(result => {
+      console.log(result);
+    })
+  }
+});
 
 
 
