@@ -18,63 +18,44 @@ const fetchProducts = async params => {
             }
         }
     });
-    result = result.map(product => product.dataValues);
     return result;
 }
 
 const fetchProduct = async id => {
     let product = await models.Product.findAll({
-        where: { id }
+        where: { id },
+        include: [
+            {
+                model: models.Feature,
+                attributes: ['feature', 'value'],
+                where: {}
+            }
+        ]
     });
-    product = product[0].dataValues
-    let features = await models.Feature.findAll({
-        where: { product_id: id }
-    });
-    product.features = features.map(feature => {
-        return { 
-            feature: feature.dataValues.feature,
-            value:  feature.dataValues.value
-        };
-    })
-    return product;
+    return product[0];
 }
 
 const fetchProductStyles = async id => {
     let styles = { product_id: id }
     styles.results = await models.Style.findAll({
         where: { productId: id },
+        attributes: [['id', 'style_id'], 'name', 'original_price', 'sale_price', ['default_style', 'default?']],
         include: [
             {
                 model: models.Photo,
-                where: {}
+                where: {},
+                attributes: ['thumbnail_url', 'url']
             },
             {
                 model: models.SKU,
-                where: {}
+                where: {},
+                attributes: ['id', 'quantity', 'size']
             }
         ]
-    })
-
-    // Reformats individual style and photo results 
-    styles.results = styles.results.map(style => {
-        style = style.get({ plain: true });
-        return {
-            style_id: style.id,
-            name: style.name,
-            original_price: style['original_price'],
-            sale_price: style['sale_price'],
-            'default?':  style['default_style'],
-            photos: style.photos.map(photo => {
-                return {
-                    thumbnail_url: photo['thumbnail_url'],
-                    url: photo['url'],
-                }
-            }),
-            skus: style.skus
-        }
     });
 
     // Reformats SKUs property
+    styles.results = styles.results.map(style => style.get({ plain: true }))
     styles.results.forEach(style => {
         const skus = {};
         style.skus.forEach(sku => {
