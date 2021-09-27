@@ -4,9 +4,9 @@ const style = require('../database/pgModels/style.js');
 
 const fetchProducts = async params => {
     // Selects the page of results to return. Default 1.
-    const page = params.page ? params.page : 1;
+    const page = params.page && typeof parseInt(params.page) === 'number' ? params.page : 1;
     // Specifies how many results per page to return. Default 5.
-    const count = params.count ?  params.count : 5;
+    const count = params.count && typeof parseInt(params.count) === 'number' ?  params.count : 5;
     let result = await models.Product.findAll({
         limit: count,
         order: [
