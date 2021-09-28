@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon server/index.js",
     "postgres": "postgres -D /usr/local/var/postgres",
-    "test": "jest --watch --detectOpenHandles"
+    "test": "jest --watchAll --detectOpenHandles --collect-coverage"
   },
   "repository": {
     "type": "git",
