@@ -6,7 +6,9 @@ const productOverviewDB = new Sequelize('productOverviewDB', 'root', null, {
     host: HOST,
     dialect: DIALECT,
     pool: {
-        max: 100000
+        max: 400,
+        min: 0,
+        idle: 10000
       }
 });
 
