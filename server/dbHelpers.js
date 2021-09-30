@@ -71,9 +71,59 @@ const fetchProductStyles = async id => {
 }
 
 
+const fetchProductData = async id => {
+    let product = await models.Product.findAll({
+        where: { id },
+        include: [
+            {
+                model: models.Feature,
+                attributes: ['feature', 'value'],
+                where: {}
+            },
+            {
+                model: models.Style,
+                attributes: [['id', 'style_id'], 'name', 'original_price', 'sale_price', ['default_style', 'default?']],
+                where: {},
+                include: [
+                    {
+                        model: models.Photo,
+                        where: {},
+                        attributes: ['thumbnail_url', 'url']
+                    },
+                    {
+                        model: models.SKU,
+                        where: {},
+                        attributes: ['id', 'quantity', 'size']
+                    }
+                ]
+            }
+        ]
+    });
+    
+    if (product.length > 0) {
+        product = product[0].get({ plain: true });
+        product.styles.forEach(style => {
+            const skus = {};
+            style.skus.forEach(sku => {
+                skus[sku.id] = {
+                    quantity: sku.quantity,
+                    size: sku.size
+                }
+            });
+
+            style.skus = skus;
+        })
+    }
+
+    return product;
+}
+
+
+
 
 module.exports = {
     fetchProducts,
     fetchProduct,
-    fetchProductStyles
+    fetchProductStyles,
+    fetchProductData
 }
