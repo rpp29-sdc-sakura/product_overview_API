@@ -1,4 +1,6 @@
 module.exports = {
     HOST: 'HOST_NAME',
-    DIALECT: 'DB_DIALECT_NAME'
+    DIALECT: 'DB_DIALECT_NAME',
+    MONGO_USER: 'MONGO_USERNAME',
+    MONGO_PASS: 'MONGO_PASS',
 };

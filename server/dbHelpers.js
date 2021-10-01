@@ -1,129 +1,41 @@
-const { productOverviewDB, models } = require('../database/postgres.js');
-const { Op } = require('sequelize');
-const style = require('../database/pgModels/style.js');
+const Product = require('../database/mongo.js');
 
 const fetchProducts = async params => {
     // Selects the page of results to return. Default 1.
-    const page = params.page && typeof parseInt(params.page) === 'number' ? params.page : 1;
+    const page = params.page && typeof parseInt(params.page) === 'number' ? parseInt(params.page) : 1;
     // Specifies how many results per page to return. Default 5.
-    const count = params.count && typeof parseInt(params.count) === 'number' ?  params.count : 5;
-    let result = await models.Product.findAll({
-        limit: count,
-        order: [
-            ['id', 'ASC']
-        ],
-        where: {
-            id: {
-                [Op.gt]: (page - 1) * count
-            }
-        }
-    });
-    return result;
-}
-
-const fetchProduct = async id => {
-    let product = await models.Product.findAll({
-        where: { id },
-        include: [
-            {
-                model: models.Feature,
-                attributes: ['feature', 'value'],
-                where: {}
-            }
-        ]
-    });
-    return product[0];
-}
-
-const fetchProductStyles = async id => {
-    let styles = { product_id: id }
-    styles.results = await models.Style.findAll({
-        where: { productId: id },
-        attributes: [['id', 'style_id'], 'name', 'original_price', 'sale_price', ['default_style', 'default?']],
-        include: [
-            {
-                model: models.Photo,
-                where: {},
-                attributes: ['thumbnail_url', 'url']
-            },
-            {
-                model: models.SKU,
-                where: {},
-                attributes: ['id', 'quantity', 'size']
-            }
-        ]
-    });
-
-    // Reformats SKUs property
-    styles.results = styles.results.map(style => style.get({ plain: true }))
-    styles.results.forEach(style => {
-        const skus = {};
-        style.skus.forEach(sku => {
-            skus[sku.id] = {
-                quantity: sku.quantity,
-                size: sku.size
-            }
-        });
-        style.skus = skus;
-    })
+    const count = params.count && typeof parseInt(params.count) === 'number' ?  parseInt(params.count) : 5;
+    // Defines excluded properties from result
+    const projection = { '_id': 0, '__v': 0, 'features': 0, 'styles': 0};
+    let products = await Product.find({id: {$gt: (page - 1) * count}}, projection)
+    .limit(count).sort({'id': 1});
     
-    return styles;
+    return products;
 }
 
 
 const fetchProductData = async id => {
-    let product = await models.Product.findAll({
-        where: { id },
-        include: [
-            {
-                model: models.Feature,
-                attributes: ['feature', 'value'],
-                where: {}
-            },
-            {
-                model: models.Style,
-                attributes: [['id', 'style_id'], 'name', 'original_price', 'sale_price', ['default_style', 'default?']],
-                where: {},
-                include: [
-                    {
-                        model: models.Photo,
-                        where: {},
-                        attributes: ['thumbnail_url', 'url']
-                    },
-                    {
-                        model: models.SKU,
-                        where: {},
-                        attributes: ['id', 'quantity', 'size']
-                    }
-                ]
-            }
-        ]
-    });
-    
+    let product = await Product.find({ id }, { "_id": false, "__v": false });
+
     if (product.length > 0) {
-        product = product[0].get({ plain: true });
-        product.styles.forEach(style => {
-            const skus = {};
+        product = product[0].toObject();
+        // Reformats skus property
+        product.styles = product.styles.map(style => {
+            let skus = {}
             style.skus.forEach(sku => {
-                skus[sku.id] = {
-                    quantity: sku.quantity,
-                    size: sku.size
-                }
+                skus[sku.id] = { quantity: sku.quantity, size: sku.size };
+                style.skus = skus;
             });
-
-            style.skus = skus;
-        })
+            return style;
+        });
     }
-
+    
     return product;
 }
 
 
 
-
 module.exports = {
     fetchProducts,
-    fetchProduct,
-    fetchProductStyles,
     fetchProductData
 }
