@@ -10,7 +10,7 @@ app.use(express.urlencoded({
   })
 );
 
-app.get(loaderIO, (req, res) => {
+app.get(`/${loaderIO}`, (req, res) => {
   res.status(200).send(loaderIO);
 });
 
