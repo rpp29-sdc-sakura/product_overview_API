@@ -2,5 +2,4 @@ config.js
 node_modules
 resources
 coverage
-spec
 data.json
