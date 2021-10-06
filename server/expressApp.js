@@ -1,5 +1,6 @@
 const express = require('express');
 const dbHelpers = require('./dbHelpers.js');
+const { loaderIO } = require('../config.js');
 require('../database/mongo.js');
 
 let app = express();
@@ -8,6 +9,10 @@ app.use(express.urlencoded({
     extended: true
   })
 );
+
+app.get(loaderIO, (req, res) => {
+  res.status(200).send(loaderIO);
+});
 
 // Endpoint returns a page of products w/ basic product info
 app.get('/products', (req, res) => {
