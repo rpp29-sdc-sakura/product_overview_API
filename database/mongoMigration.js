@@ -1,5 +1,5 @@
 const { fetchProductData } = require('../server/dbHelpers.js');
-const Product = require('./mongo.js')
+const Product = require('./mongo.js');
 //const { productOverviewDB, models } = require('../database/postgres.js');
 let maxProductId = 1000011;
 
