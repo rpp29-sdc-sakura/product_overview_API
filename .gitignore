@@ -3,3 +3,5 @@ node_modules
 resources
 coverage
 data.json
+redis-stable
+redis-stable.tar.gz
