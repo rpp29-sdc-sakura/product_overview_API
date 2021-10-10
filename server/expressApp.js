@@ -28,12 +28,29 @@ app.get('/products/:product_id', (req, res) => {
   if(isNaN(productId)) {
     res.status(400).send('Error: invalid product id provided');
   } else {
-    dbHelpers.fetchProductData(productId)
+    dbHelpers.fetchProduct(productId)
     .then(result => {
       if (Array.isArray(result)) {
         res.status(204).send('Content with product id could not be found')
       } else {
         res.status(200).send(result);
+      }
+    });
+  }
+});
+
+// Endpoint updates a the fully property value of a specified product
+app.put('/products/:product_id', (req, res) => {
+  let productId = parseInt(req.params['product_id']);
+  if(isNaN(productId)) {
+    res.status(400).send('Error: invalid product id provided');
+  } else {
+    dbHelpers.updateProduct(productId, req.body)
+    .then(result => {
+      if (result.acknowledged) {
+        res.status(200).send('Product Updated');
+      } else {
+        res.status(400).send('Error: Product unsuccessfully updated');
       }
     });
   }

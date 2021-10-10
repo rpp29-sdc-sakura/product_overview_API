@@ -14,7 +14,7 @@ const fetchProducts = async params => {
 }
 
 
-const fetchProductData = async id => {
+const fetchProduct = async id => {
     let product = await Product.find({ id }, { "_id": false, "__v": false });
 
     if (product.length > 0) {
@@ -34,8 +34,21 @@ const fetchProductData = async id => {
 }
 
 
+const updateProduct = async (id, update) => {
+    const result = await Product.updateOne({ id }, update)
+    .then(success => {
+        return success;
+    })
+    .catch(err => {
+        return err;
+    })
+    console.log(result);
+    return result;
+}
+
 
 module.exports = {
     fetchProducts,
-    fetchProductData
+    fetchProduct,
+    updateProduct
 }
