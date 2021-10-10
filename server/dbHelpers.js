@@ -35,6 +35,19 @@ const fetchProduct = async id => {
 
 
 const updateProduct = async (id, update) => {
+    
+    const objProperties = {
+        features: true,
+        styles: true,
+        photos: true,
+        skus: true
+    }
+
+    const property = Object.keys(update)[0];
+    if (objProperties[property]) {
+        update[property] = JSON.parse(update[property]);
+    }
+
     const result = await Product.updateOne({ id }, update)
     .then(success => {
         return success;
