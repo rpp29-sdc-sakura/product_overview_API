@@ -1,6 +1,7 @@
 const express = require('express');
 const dbHelpers = require('./dbHelpers.js');
 const { loaderIO } = require('../config.js');
+const cleanCache  = require('./middleWare/cleanCache.js');
 require('../database/mongo.js');
 
 let app = express();
@@ -10,6 +11,7 @@ app.use(express.urlencoded({
   })
 );
 
+// Loader IO Route
 app.get(`/${loaderIO}`, (req, res) => {
   res.status(200).send(loaderIO);
 });
@@ -40,7 +42,7 @@ app.get('/products/:product_id', (req, res) => {
 });
 
 // Endpoint updates a the fully property value of a specified product
-app.put('/products/:product_id', (req, res) => {
+app.route('/products/:product_id').put(cleanCache, (req, res) => {
   let productId = parseInt(req.params['product_id']);
   if(isNaN(productId)) {
     res.status(400).send('Error: invalid product id provided');
