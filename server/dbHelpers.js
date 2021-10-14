@@ -6,19 +6,20 @@ const fetchProducts = async params => {
     // Specifies how many results per page to return. Default 5.
     params.count = params.count && typeof parseInt(params.count) === 'number' ?  parseInt(params.count) : 5;
     // Defines excluded properties from result
-    const projection = { '_id': 0, '__v': 0, 'features': 0, 'styles': 0};
-    let products = await Product.find({id: {$gt: (page - 1) * count}}, projection).cach({key: JSON.stringify(params)})
-    .limit(count).sort({'id': 1});
+    const projection = { '_id': false, '__v': false, 'features': false, 'styles': false};
+    let products = await Product.find({id: {$gt: (params.page - 1) * params.count}}, projection)
+    .limit(params.count).sort({'id': 1}).lean()//.cache({key: JSON.stringify(params)});
     
     return products;
 }
 
 
 const fetchProduct = async id => {
-    let product = await Product.find({ id }, { "_id": false, "__v": false }).cache({ key: id });
+    let product = await Product.find({ id }, { "_id": false, "__v": false }).lean().cache({ key: id });
 
     if (product.length > 0) {
-        product = product[0].toObject();
+        product = product[0]
+
         // Reformats skus property
         product.styles = product.styles.map(style => {
             let skus = {}
@@ -44,6 +45,7 @@ const updateProduct = async (id, update) => {
     }
 
     const property = Object.keys(update)[0];
+
     if (objProperties[property]) {
         update[property] = JSON.parse(update[property]);
     }

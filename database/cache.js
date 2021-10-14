@@ -25,18 +25,20 @@ mongoose.Query.prototype.exec = async function() {
     const key = JSON.stringify(Object.assign({}, this.getQuery(), {
         collection: this.mongooseCollection.name,
     }));
-
     const cachedValue = await client.hget(this.hashKey, key);
 
     if (cachedValue) {
+        const productsProjection = { '_id': false, '__v': false, 'features': false, 'styles': false};
+        const productProjection = { "_id": false, "__v": false }
+
         const parsedCache = JSON.parse(cachedValue);
 
         console.log('Data Source: Cache');
-
-        return Array.isArray(parsedCache) 
-                ?  parsedCache.map(doc => new this.model(doc)) 
-                :  new this.model(parsedCache);
-    }
+        return parsedCache;
+            // return Array.isArray(parsedCache) 
+            // ?  parsedCache.map(doc => new this.model(doc, productsProjection)) 
+            // :  new this.model(parsedCache, productProjection);
+        }
 
     const result = await exec.apply(this, arguments);
     
@@ -48,7 +50,6 @@ mongoose.Query.prototype.exec = async function() {
 
 module.exports = {
     clearCache(hashKey) {
-        console.log('Cache cleaned');
-        client.del(JSON.stringify(hashKey));
+        client.del(hashKey);
     }
 }
