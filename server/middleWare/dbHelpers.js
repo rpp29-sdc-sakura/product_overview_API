@@ -1,10 +1,12 @@
-const Product = require('../database/mongo.js');
+const Product = require('../../database/mongo.js');
 
+// Function takes page and count params, then returns array of product data objs
+// excludes features and styles product data
 const fetchProducts = async params => {
     // Selects the page of results to return. Default 1.
-    params.page = params.page && typeof parseInt(params.page) === 'number' ? parseInt(params.page) : 1;
+    params.page = params.page ?  parseInt(params.page) : 1;
     // Specifies how many results per page to return. Default 5.
-    params.count = params.count && typeof parseInt(params.count) === 'number' ?  parseInt(params.count) : 5;
+    params.count = params.count ?  parseInt(params.count) : 5;
     // Defines excluded properties from result
     const projection = { '_id': false, '__v': false, 'features': false, 'styles': false};
     let products = await Product.find({id: {$gt: (params.page - 1) * params.count}}, projection)
@@ -13,7 +15,7 @@ const fetchProducts = async params => {
     return products;
 }
 
-
+// Function takes a productId, then returns a product obj
 const fetchProduct = async id => {
     let product = await Product.find({ id }, { "_id": false, "__v": false }).lean().cache({ key: id });
 
@@ -34,7 +36,7 @@ const fetchProduct = async id => {
     return product;
 }
 
-
+// Function takes productId and update obj, then updates specified product in collection
 const updateProduct = async (id, update) => {
 
     const objProperties = {
@@ -44,20 +46,20 @@ const updateProduct = async (id, update) => {
         skus: true
     }
 
-    const property = Object.keys(update)[0];
-
-    if (objProperties[property]) {
-        update[property] = JSON.parse(update[property]);
+    for (var property in update) {
+        if (objProperties[property]) {
+            update[property] = JSON.parse(update[property]);
+        }
     }
 
-    const result = await Product.updateOne({ id }, update)
-    .then(success => {
-        return success;
+    const result = await Product.findOneAndUpdate({ id }, update, { new: true })
+    .then(result => {
+        return result;
     })
     .catch(err => {
         return err;
     })
-    console.log(result);
+
     return result;
 }
 

@@ -1,7 +1,7 @@
 const express = require('express');
-const dbHelpers = require('./dbHelpers.js');
-const { loaderIO } = require('../config.js');
+const dbHelpers = require('./middleWare/dbHelpers.js');
 const cleanCache  = require('./middleWare/cleanCache.js');
+const { queryParamValidator, productIDValidator } = require('./middleWare/validation');
 require('../database/mongo.js');
 
 let app = express();
@@ -11,50 +11,61 @@ app.use(express.urlencoded({
   })
 );
 
-// Loader IO Route
-app.get(`/${loaderIO}`, (req, res) => {
-  res.status(200).send(loaderIO);
-});
-
 // Endpoint returns a page of products w/ basic product info
-app.get('/products', (req, res) => {
-  dbHelpers.fetchProducts(req.query)
-  .then(result => {
-    res.status(200).send(result);
-  })
+app.get('/products', async (req, res) => {
+  const queryParams = req.query; 
+  if (queryParamValidator(queryParams)) {
+    await dbHelpers.fetchProducts(queryParams)
+    .then(result => {
+      result.length > 0 ? res.status(200).send(result) : res.status(204).send();
+    });
+  } else {
+    res.status(400).send(`
+    Error: Invalid query parameters provided:
+    - Page must be a number greater than zero.
+    - Count must be a number greater than zero but no greater than 100,000.`);
+  }
 });
 
 // Endpoint returns full product information of specified product (inc. features, styles, photos, skus)
-app.get('/products/:product_id', (req, res) => {
-  let productId = parseInt(req.params['product_id']);
-  if(isNaN(productId)) {
-    res.status(400).send('Error: invalid product id provided');
-  } else {
-    dbHelpers.fetchProduct(productId)
+app.get('/products/:product_id', async (req, res) => {
+  if (productIDValidator(req.params['product_id'])) {
+    const productId = parseInt(req.params['product_id']);
+    await dbHelpers.fetchProduct(productId)
     .then(result => {
       if (Array.isArray(result)) {
-        res.status(204).send('Content with product id could not be found')
+        res.status(204).send();
       } else {
         res.status(200).send(result);
       }
     });
+  } else {
+    res.status(400).send(`
+    Error: Invalid product id provided:
+    - ID must be a number greater than one.`);
   }
 });
 
-// Endpoint updates a the fully property value of a specified product
-app.route('/products/:product_id').put(cleanCache, (req, res) => {
-  let productId = parseInt(req.params['product_id']);
-  if(isNaN(productId)) {
-    res.status(400).send('Error: invalid product id provided');
-  } else {
-    dbHelpers.updateProduct(productId, req.body)
+// Endpoint updates property value of a specified product
+app.put('/products/:product_id', async (req, res) => {
+  if (productIDValidator(req.params['product_id']) && Object.keys(req.body).length > 0) {
+    const productId = parseInt(req.params['product_id']);
+    await dbHelpers.updateProduct(productId, req.body)
     .then(result => {
-      if (result.acknowledged) {
-        res.status(200).send('Product Updated');
+      if (result) {
+        cleanCache(productId);
+        res.status(200).send(result);
       } else {
-        res.status(400).send('Error: Product unsuccessfully updated');
+        res.status(400).send(`
+        Error: Product unsuccessfully updated:
+        - ID does not exist.`);
       }
     });
+  } else {
+    res.status(400).send(`
+      Error: Product unsuccessfully updated:
+      - ID must be a number greater than one
+      - Request body must contain at least one product propery name as key with value being the data to be updated.`);
   }
 });
 
