@@ -1,9 +1,10 @@
 import http from 'k6/http';
 import { sleep } from 'k6';
+import { EXPRESS_PORT } from '..config.js'
 
 export let options = {
     vus: 100,
-    duration: '30s',
+    duration: '60s',
     // stages: [
     //     { duration: '15s', target: 250 },
     //     { duration: '15s', target: 350 },
@@ -31,9 +32,10 @@ export default function() {
         if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
         return num
     }
+    
     let page = Math.floor(randn_bm() * 50);
     let count = Math.floor(randn_bm() * 50);
-    let randId = Math.floor(randn_bm() * 1000011);
-    http.get(`http://localhost:3000/products/${randId}`);
+    let randId = Math.floor(randn_bm() * (1000011 - 900010) + 900010);
+    http.get(`http://localhost:${EXPRESS_PORT}/products/${randId}`);
     sleep(1);
 }
