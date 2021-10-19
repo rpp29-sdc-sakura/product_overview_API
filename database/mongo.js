@@ -1,18 +1,13 @@
 const mongoose = require('mongoose');
-const { MONGO_HOST, MONGO_USER, MONGO_PASS } = require('../config.js');
+const { MONGO_HOST } = require('../config.js');
 
-//onst config = require('../config.js');
-
-function main() {
-    mongoose.connect(`mongodb://${MONGO_HOST}/productOverview`,  { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(success => {
-        console.log('Connected to DB');
-    })
-    .catch(err => {
-        console.log(err);
-    })
-    //mongoose.connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASS}@productoverview.fnpft.mongodb.net/productOverview?retryWrites=true&w=majority`,  { useNewUrlParser: true, useUnifiedTopology: true });
-}
+mongoose.connect(`mongodb://${MONGO_HOST}/productOverview`,  { useNewUrlParser: true, useUnifiedTopology: true })
+.then(success => {
+    console.log('Connected to DB');
+})
+.catch(err => {
+    console.log(err);
+})
 
 const productSchema = mongoose.Schema({
     id: { 
@@ -61,6 +56,5 @@ const productSchema = mongoose.Schema({
 
 
 const Product = mongoose.model('Product', productSchema);
-main();
 
 module.exports = Product;

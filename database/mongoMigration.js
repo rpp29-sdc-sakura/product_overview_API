@@ -1,6 +1,6 @@
-const { fetchProductData } = require('../server/dbHelpers.js');
+const { fetchProductData } = require('../server/middleWare/dbHelpers.js');
 const Product = require('./mongo.js');
-//const { productOverviewDB, models } = require('../database/postgres.js');
+
 let maxProductId = 1000011;
 
 
@@ -36,7 +36,6 @@ const addProductsToMongo = async (increment, maxId) => {
             endId = endId + increment > maxId ? maxId : endId + increment;
         }
     }
+
     console.log('DB Seeded');
 }
-
-//addProductsToMongo(200, maxProductId);

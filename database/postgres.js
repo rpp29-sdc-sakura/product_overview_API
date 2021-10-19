@@ -1,10 +1,10 @@
 const {Sequelize, DataTypes} = require('sequelize');
 const { product, feature, style, sku, photo } = require('./pgModels/index.js');
-const { HOST, DIALECT } = require('../config.js');
+const { POSTGRES_HOST } = require('../config.js');
 
 const productOverviewDB = new Sequelize('productOverviewDB', 'root', null, {
-    host: HOST,
-    dialect: DIALECT,
+    host: POSTGRES_HOST,
+    dialect: 'postgres',
     pool: {
         max: 400,
         min: 0,

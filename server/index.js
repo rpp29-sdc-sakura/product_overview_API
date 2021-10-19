@@ -1,7 +1,7 @@
 const app = require('./expressApp.js');
-const port = 3000;
+const { EXPRESS_PORT } = require('../config.js');
 
-app.listen( port, function() {
-  console.log(`listening on port ${port}`);
+app.listen(EXPRESS_PORT, function() {
+  console.log(`listening on port ${EXPRESS_PORT}`);
 });
 
