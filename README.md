@@ -1,6 +1,15 @@
 # Product Overview REST API Service
 ## Overview
-This is a **REST**ful API built to supply *product* data to a client/front-end. This service manages the data for the **Product Overview** section, working in tandem with additional services that manage data for the **Related Products**, **Questions & Answers**, and **Reviews** sections.
+This is a **REST**ful API built to supply *product* data to a client/front-end. This service manages the data for the **Product Overview** section, working in tandem with additional services that manage data for the [Related Products](https://github.com/rpp29-sdc-sakura/LightweightAPI), [Questions & Answers](https://github.com/rpp29-sdc-sakura/QandA_API), and [Reviews](https://github.com/quinn-lima/SDC) sections.
+
+## Table of Contents
+* [Install](#install)
+* [Test](#test)
+* [Usage](#usage)
+  * [Get a List of Products](#get-a-list-of-products)
+  * [Get a Single Product](#get-a-single-product)
+  * [Update a Single Product](#update-a-single-product)
+
 
 ## Install
 To install application dependancies
