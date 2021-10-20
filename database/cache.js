@@ -6,6 +6,7 @@ const { REDIS_HOST } = require('../config.js');
 const redisUrl = `redis://${REDIS_HOST}`;
 const client = redis.createClient(redisUrl);
 client.hget = util.promisify(client.hget);
+client.scan = util.promisify(client.scan);
 
 const exec = mongoose.Query.prototype.exec;
 
@@ -25,29 +26,43 @@ mongoose.Query.prototype.exec = async function() {
     const key = JSON.stringify(Object.assign({}, this.getQuery(), {
         collection: this.mongooseCollection.name,
     }));
-
+    console.log(`Key: ${key}`)
+    console.log(`Hash Key: ${this.hashKey}`);
     const cachedValue = await client.hget(this.hashKey, key);
-
+    console.log(`Cached Value: ${cachedValue}`);
     if (cachedValue) {
-        const productsProjection = { '_id': false, '__v': false, 'features': false, 'styles': false};
-        const productProjection = { "_id": false, "__v": false }
-
         const parsedCache = JSON.parse(cachedValue);
 
         return parsedCache;
-            // return Array.isArray(parsedCache) 
-            // ?  parsedCache.map(doc => new this.model(doc, productsProjection)) 
-            // :  new this.model(parsedCache, productProjection);
         }
 
     const result = await exec.apply(this, arguments);
-    client.hmset(this.hashKey, key, JSON.stringify(result), 'EX', 300);
+    console.log(client.hmset(this.hashKey, key, JSON.stringify(result), 'EX', 300))
 
     return result;
 }
 
+// Scanns all keys for given patten, returns array of matching keys
+const scanAll = async (pattern) => {
+    const found = [];
+    let cursor = '0';
+  
+    do {
+      const reply = await client.scan(cursor, 'MATCH', pattern);
+  
+      cursor = reply[0];
+      found.push(...reply[1]);
+    } while (cursor !== '0');
+  
+    return found;
+}
+
+// Removes data associated with given key from cache
+const clearCache = (hashKey) => {
+    client.del(hashKey);
+}
+
 module.exports = {
-    clearCache(hashKey) {
-        client.del(hashKey);
-    }
+    scanAll,
+    clearCache
 }
