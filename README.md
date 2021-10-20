@@ -45,7 +45,7 @@ This request has two optional query parameters `count` and `page`.
   * Defaults to page `1` if not specified
 
 #### Response
-``` json
+```
 status: 200 OK
 
 [
@@ -85,7 +85,7 @@ GET /products/:productId
 This request takes a specific product ID
 * The product ID must be a number greater than `0` and a product with that ID must exist 
 #### Response
-``` json
+```
 status: 200 OK
 
 {
@@ -144,14 +144,14 @@ This request takes a specific product ID and a non-optional update object sent i
 * The product ID must be a number greater than `0` and a product with that ID must exist
 * The update object must include one or more keys that match to properties existing in a product object. The values associated with these keys will be the data that is intended to replace the data that exists in the database. 
 
-``` json
+```
 updateObject = {
   'slogan': 'new slogan',
   'default_price': 99
 }
 ```
 #### Response
-``` json
+```
 status: 200 OK
 
 {
